@@ -1,0 +1,1543 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PIBIC / UFBA — Plataforma de Ensino Universitário Inteligente</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous" onload="window.__renderAllMath && window.__renderAllMath()"></script>
+
+  <style>
+    :root {
+      --bg: #F8FAFC;
+      --surface: #FFFFFF;
+      --surface-soft: #F1F5F9;
+      --border: #E2E8F0;
+      --border-strong: #CBD5E1;
+      --ink: #0F172A;
+      --ink-2: #334155;
+      --ink-3: #64748B;
+      --navy: #1E3A8A;
+      --blue: #2563EB;
+      --sky: #38BDF8;
+      --emerald: #10B981;
+      --amber: #F59E0B;
+      --crimson: #DC2626;
+      --grad: linear-gradient(135deg, #1E3A8A 0%, #2563EB 52%, #38BDF8 100%);
+      --shadow-sm: 0 2px 10px rgba(15, 23, 42, 0.04);
+      --shadow-md: 0 12px 32px -12px rgba(15, 23, 42, 0.09), 0 4px 12px -4px rgba(15, 23, 42, 0.04);
+      --shadow-lg: 0 24px 54px -18px rgba(30, 58, 138, 0.18), 0 0 28px rgba(37, 99, 235, 0.16);
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      user-select: none;
+    }
+
+    .mono, code { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+    .katex { font-size: 0.98em; }
+    .katex-display { margin: 0.18em 0 !important; }
+
+    /* ==================== MINIMAL 2D STAGE BACKDROP ==================== */
+    .stage-bg {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(60% 50% at 10% 8%, rgba(56, 189, 248, 0.10), transparent 65%),
+        radial-gradient(50% 48% at 92% 92%, rgba(37, 99, 235, 0.08), transparent 65%),
+        var(--bg);
+    }
+
+    .stage-bg::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(rgba(30, 58, 138, 0.09) 1px, transparent 1px);
+      background-size: 32px 32px;
+      mask-image: radial-gradient(ellipse 85% 85% at 50% 50%, #000 35%, transparent 100%);
+      -webkit-mask-image: radial-gradient(ellipse 85% 85% at 50% 50%, #000 35%, transparent 100%);
+    }
+
+    /* ==================== DECK & PREZI DEPTH TRANSITIONS ==================== */
+    .deck { position: relative; z-index: 1; width: 100vw; height: 100vh; display: flex; flex-direction: column; }
+    .viewport { position: relative; flex: 1; min-height: 0; overflow: hidden; perspective: 1200px; }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      padding: clamp(18px, 2.6vh, 34px) clamp(32px, 4.6vw, 72px) clamp(14px, 2vh, 22px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transform: translate3d(72px, 0, 0) scale(0.91);
+      will-change: transform, opacity;
+      transition: opacity 0.52s var(--ease), transform 0.62s var(--ease), visibility 0s linear 0.62s;
+    }
+
+    .slide.is-prev { transform: translate3d(-72px, 0, 0) scale(1.07); }
+
+    .slide.is-active {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      transform: translate3d(0, 0, 0) scale(1);
+      transition: opacity 0.52s var(--ease), transform 0.62s var(--ease), visibility 0s linear 0s;
+    }
+
+    .inner {
+      width: 100%;
+      max-width: 1460px;
+      height: 100%;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: clamp(12px, 1.8vh, 22px);
+    }
+
+    .s-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      flex-shrink: 0;
+    }
+
+    .s-title {
+      font-size: clamp(1.55rem, 2.5vw, 2.35rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.12;
+      color: var(--ink);
+    }
+
+    .grad-text { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+    /* ==================== SLIDE 1: CAPA 2D MINIMALISTA ==================== */
+    .cover-grid-2d { display: grid; grid-template-columns: 1.18fr 0.82fr; gap: clamp(28px, 4vw, 60px); align-items: center; height: 100%; }
+    .cover-content { display: flex; flex-direction: column; gap: clamp(18px, 2.6vh, 28px); }
+    .cover-logos { display: flex; align-items: center; gap: 16px; }
+    .cover-logos img { height: clamp(38px, 4.8vh, 52px); width: auto; object-fit: contain; mix-blend-mode: multiply; }
+    .cover-logos-sep { width: 1px; height: 30px; background: var(--border-strong); }
+    .cover-inst { font-size: clamp(0.72rem, 0.85vw, 0.84rem); font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--navy); line-height: 1.4; }
+    .cover-h1 { font-size: clamp(2.05rem, 3.5vw, 3.4rem); font-weight: 800; letter-spacing: -0.035em; line-height: 1.08; color: var(--ink); }
+    .cover-lead { font-size: clamp(0.98rem, 1.24vw, 1.18rem); line-height: 1.55; color: var(--ink-2); max-width: 600px; }
+    .cover-authors { display: flex; flex-wrap: wrap; gap: clamp(16px, 2.2vw, 30px); padding-top: clamp(14px, 2vh, 22px); border-top: 1px solid var(--border); }
+    .cover-person { display: flex; flex-direction: column; gap: 3px; }
+    .cover-person-role { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--blue); }
+    .cover-person-name { font-size: clamp(0.94rem, 1.12vw, 1.08rem); font-weight: 700; color: var(--ink); }
+
+    .cover-flat-card { background: var(--surface); border: 1.5px solid var(--border); border-radius: 22px; padding: 24px; box-shadow: var(--shadow-lg); display: flex; flex-direction: column; gap: 14px; }
+    .cover-flat-head { display: flex; justify-content: space-between; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 0.76rem; font-weight: 700; color: var(--navy); }
+    .cover-flat-pill { padding: 4px 10px; border-radius: 999px; background: #ECFDF5; color: #047857; font-size: 0.72rem; }
+
+    /* ==================== SLIDE 2: FLIP REAL 2D ==================== */
+    .axes-shell { position: relative; flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr 1fr; gap: clamp(20px, 2.5vw, 34px); align-items: stretch; }
+    .axis-tile {
+      position: relative; background: var(--surface); border: 1.5px solid var(--border); border-radius: 22px;
+      padding: clamp(22px, 2.8vh, 34px) clamp(24px, 2.5vw, 34px);
+      display: flex; flex-direction: column; justify-content: center; gap: 14px; box-shadow: var(--shadow-md);
+      cursor: pointer; transform-origin: top left; will-change: transform, opacity;
+      transition: box-shadow 0.35s var(--ease), border-color 0.35s var(--ease), opacity 0.4s var(--ease);
+    }
+    .axis-tile:hover:not(.is-zoomed) { border-color: rgba(37, 99, 235, 0.5); box-shadow: var(--shadow-lg); }
+    .axis-tile.is-hidden { opacity: 0; pointer-events: none; }
+    .axis-tile.is-zoomed { position: absolute; inset: 0; z-index: 6; border-color: rgba(37, 99, 235, 0.58); box-shadow: var(--shadow-lg); padding: clamp(24px, 3.2vh, 42px) clamp(32px, 4vw, 54px); justify-content: center; }
+
+    .axis-flat-thumb { width: 100%; height: clamp(110px, 15vh, 155px); border-radius: 14px; background: var(--bg); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; padding: 12px; }
+    .axis-tile.is-zoomed .axis-flat-thumb { display: none; }
+    .axis-tile h3 { font-size: clamp(1.38rem, 1.95vw, 1.86rem); font-weight: 800; letter-spacing: -0.02em; color: var(--ink); }
+    .axis-tile > p { font-size: clamp(0.95rem, 1.16vw, 1.12rem); line-height: 1.52; color: var(--ink-2); }
+    .axis-more { font-size: 0.84rem; font-weight: 700; color: var(--blue); display: inline-flex; align-items: center; gap: 6px; }
+    .axis-tile.is-zoomed .axis-more { display: none; }
+
+    .focus-back-btn { display: none; position: absolute; top: 20px; right: 24px; border: 1px solid var(--border); background: var(--bg); color: var(--ink-2); border-radius: 999px; padding: 6px 14px; font-size: 0.78rem; font-weight: 600; cursor: pointer; }
+    .axis-tile.is-zoomed .focus-back-btn { display: inline-flex; }
+
+    .focus-list { display: none; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 8px; padding-top: 18px; border-top: 1px solid var(--border); opacity: 0; transform: translate3d(0, 12px, 0); transition: opacity 0.42s var(--ease) 0.16s, transform 0.45s var(--ease) 0.16s; }
+    .axis-tile.is-zoomed .focus-list { display: grid; }
+    .axis-tile.is-zoomed.is-revealed .focus-list { opacity: 1; transform: translate3d(0, 0, 0); }
+    .focus-point { padding: 16px; border-radius: 14px; background: var(--bg); border: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; }
+    .focus-point strong { font-size: clamp(0.9rem, 1.06vw, 1rem); color: var(--navy); }
+    .focus-point span { font-size: clamp(0.82rem, 0.94vw, 0.92rem); line-height: 1.48; color: var(--ink-2); }
+
+    /* ==================== SLIDE 3: TECNOLOGIAS (LIMPO E ENXUTO) ==================== */
+    .stack-grid { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr); gap: clamp(16px, 2vw, 24px); }
+    .stack-item {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 20px;
+      padding: clamp(20px, 2.6vh, 30px) clamp(22px, 2.2vw, 30px);
+      box-shadow: var(--shadow-sm); display: flex; flex-direction: column; justify-content: space-between; gap: 14px;
+      opacity: 0; transform: translate3d(0, 18px, 0);
+      transition: transform 0.35s var(--ease), box-shadow 0.35s var(--ease), border-color 0.35s var(--ease);
+    }
+    .slide.is-active .stack-item { animation: fadeLift 0.52s var(--ease) forwards; animation-delay: calc(var(--i) * 65ms); }
+    @keyframes fadeLift { to { opacity: 1; transform: translate3d(0, 0, 0); } }
+    .stack-item:hover { transform: translate3d(0, -4px, 0); border-color: rgba(37, 99, 235, 0.42); box-shadow: var(--shadow-md); }
+    .stack-logos-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .logo-group { display: flex; align-items: center; gap: 10px; }
+    .tech-logo-box { width: 42px; height: 42px; border-radius: 11px; background: var(--bg); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; padding: 7px; }
+    .tech-logo-box img { width: 100%; height: 100%; object-fit: contain; }
+    .stack-cat { font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--blue); }
+    .stack-names { font-size: clamp(1.08rem, 1.32vw, 1.26rem); font-weight: 800; color: var(--ink); letter-spacing: -0.015em; }
+
+    /* ==================== SLIDE 4: POR QUE NÃO USAR UM PROMPT ÚNICO? ==================== */
+    .compare-grid { flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr 1fr; gap: clamp(18px, 2.2vw, 28px); align-items: stretch; }
+    .compare-col { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: clamp(20px, 2.6vh, 30px) clamp(22px, 2.4vw, 32px); box-shadow: var(--shadow-md); display: flex; flex-direction: column; justify-content: space-between; gap: 14px; }
+    .compare-col.is-bad { border-top: 4px solid var(--crimson); background: linear-gradient(180deg, #FFFBFB 0%, #FFFFFF 28%); }
+    .compare-col.is-good { border-top: 4px solid var(--blue); background: linear-gradient(180deg, #F5F9FF 0%, #FFFFFF 28%); box-shadow: var(--shadow-lg); }
+    .col-pill { display: inline-flex; width: fit-content; padding: 5px 12px; border-radius: 999px; font-size: 0.74rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; }
+    .is-bad .col-pill { background: rgba(220, 38, 38, 0.1); color: var(--crimson); }
+    .is-good .col-pill { background: rgba(16, 185, 129, 0.12); color: #047857; }
+    .compare-col h3 { font-size: clamp(1.2rem, 1.65vw, 1.56rem); font-weight: 800; letter-spacing: -0.02em; color: var(--ink); }
+    .compare-rows { display: flex; flex-direction: column; gap: 10px; flex: 1; justify-content: center; }
+    .c-row { padding: 14px 16px; border-radius: 14px; background: var(--bg); border: 1px solid var(--border); display: flex; flex-direction: column; gap: 4px; }
+    .is-bad .c-row strong { color: var(--crimson); font-size: clamp(0.92rem, 1.08vw, 1.04rem); }
+    .is-good .c-row strong { color: var(--navy); font-size: clamp(0.92rem, 1.08vw, 1.04rem); }
+    .c-row span { font-size: clamp(0.82rem, 0.94vw, 0.92rem); color: var(--ink-2); line-height: 1.45; }
+
+    /* ==================== SLIDE 5: ESTABILIDADE, CUSTO E QUALIDADE ==================== */
+    .pillars-grid { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr); gap: clamp(16px, 2vw, 24px); }
+    .pillar-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 22px;
+      padding: clamp(18px, 2.4vh, 26px) clamp(22px, 2.3vw, 30px);
+      box-shadow: var(--shadow-sm); display: flex; flex-direction: column; justify-content: space-between; gap: 10px;
+      cursor: pointer; will-change: transform, opacity;
+      transition: transform 0.42s var(--ease), opacity 0.35s var(--ease), box-shadow 0.42s var(--ease), border-color 0.42s var(--ease);
+    }
+    .pillar-card:hover { border-color: rgba(37, 99, 235, 0.45); transform: translate3d(0, -3px, 0); }
+    .pillars-grid[data-spot="1"] .pillar-card:not([data-b="1"]),
+    .pillars-grid[data-spot="2"] .pillar-card:not([data-b="2"]),
+    .pillars-grid[data-spot="3"] .pillar-card:not([data-b="3"]),
+    .pillars-grid[data-spot="4"] .pillar-card:not([data-b="4"]) { opacity: 0.32; transform: scale(0.975); }
+    .pillars-grid[data-spot="1"] .pillar-card[data-b="1"],
+    .pillars-grid[data-spot="2"] .pillar-card[data-b="2"],
+    .pillars-grid[data-spot="3"] .pillar-card[data-b="3"],
+    .pillars-grid[data-spot="4"] .pillar-card[data-b="4"] { opacity: 1; transform: scale(1.025); border-color: var(--blue); box-shadow: var(--shadow-lg); z-index: 2; }
+    .pillar-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .pillar-num { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 700; color: #FFFFFF; background: var(--grad); padding: 4px 10px; border-radius: 8px; }
+    .pillar-badge { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 600; color: var(--blue); background: rgba(37, 99, 235, 0.08); padding: 4px 10px; border-radius: 999px; }
+    .pillar-card h3 { font-size: clamp(1.08rem, 1.38vw, 1.32rem); font-weight: 800; color: var(--ink); }
+    .pillar-card p { font-size: clamp(0.84rem, 0.98vw, 0.95rem); line-height: 1.5; color: var(--ink-2); }
+    .flow-strip { padding: 8px 12px; border-radius: 10px; background: var(--bg); border: 1px solid var(--border); font-family: 'JetBrains Mono', monospace; font-size: clamp(0.7rem, 0.8vw, 0.78rem); color: var(--navy); }
+
+    /* ==================== SLIDE 6: FLUXOGRAMA DESENHADO COM SETAS BRILHANDO ==================== */
+    .pipe-wrap { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: clamp(14px, 1.8vh, 20px); }
+
+    .flow-canvas {
+      display: grid;
+      grid-template-columns: 1fr 26px 1fr 26px 1.25fr 26px 1fr 26px 1.15fr 26px 1fr;
+      align-items: center;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: clamp(14px, 2vh, 22px) clamp(14px, 1.5vw, 22px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .f-arrow { display: flex; align-items: center; justify-content: center; }
+    .f-arrow svg { width: 100%; height: 64px; overflow: visible; }
+
+    .p-node {
+      background: var(--bg);
+      border: 1.5px solid var(--border-strong);
+      border-radius: 14px;
+      padding: 12px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      will-change: transform, opacity;
+      transition: transform 0.35s var(--ease), opacity 0.3s var(--ease), border-color 0.3s var(--ease), box-shadow 0.35s var(--ease);
+    }
+
+    .p-node:hover { border-color: rgba(37, 99, 235, 0.5); transform: translate3d(0, -3px, 0); }
+    .p-node.is-on { border-color: var(--blue); box-shadow: var(--shadow-lg); transform: scale(1.04); background: #EFF6FF; z-index: 3; }
+    .p-node.is-off { opacity: 0.4; }
+
+    .p-step { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; font-weight: 700; color: var(--blue); }
+    .p-node h3 { font-size: clamp(0.86rem, 1.02vw, 0.98rem); font-weight: 800; color: var(--ink); line-height: 1.25; }
+    .p-node p { font-size: clamp(0.72rem, 0.82vw, 0.8rem); line-height: 1.38; color: var(--ink-2); }
+
+    .loop-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px;
+      font-size: 0.66rem;
+      font-weight: 700;
+      padding: 3px 7px;
+      border-radius: 7px;
+      background: #FFFBEB;
+      color: #B45309;
+      border: 1px solid rgba(245, 158, 11, 0.35);
+    }
+
+    .split-mini {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .split-chip {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 8px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: var(--ink);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .m-badge { font-family: 'JetBrains Mono', monospace; font-size: 0.64rem; font-weight: 700; padding: 2px 7px; border-radius: 999px; }
+    .m-lite { background: rgba(56, 189, 248, 0.16); color: #0369A1; }
+    .m-flash { background: var(--grad); color: #FFFFFF; }
+
+    .p-inspector {
+      flex: 1;
+      min-height: 0;
+      background: var(--surface);
+      border: 1px solid rgba(37, 99, 235, 0.28);
+      border-radius: 18px;
+      padding: clamp(14px, 1.8vh, 20px) clamp(18px, 2vw, 26px);
+      box-shadow: var(--shadow-md);
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .p-inspector.has-json { grid-template-columns: 1.15fr 1fr; gap: 22px; }
+    .insp-col { display: flex; flex-direction: column; gap: 5px; }
+    .insp-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--blue); }
+    .insp-text { font-size: clamp(0.86rem, 0.98vw, 0.96rem); line-height: 1.5; color: var(--ink-2); }
+    .insp-code { display: none; font-family: 'JetBrains Mono', monospace; font-size: clamp(0.7rem, 0.8vw, 0.78rem); line-height: 1.46; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px; color: var(--navy); white-space: pre-wrap; }
+    .p-inspector.has-json .insp-code { display: block; }
+
+    /* ==================== SLIDE 7: EXEMPLO REAL (ZERO CORTE NO RODAPÉ) ==================== */
+    .live-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: 999px;
+      background: var(--grad);
+      color: #FFFFFF;
+      text-decoration: none;
+      font-size: clamp(0.76rem, 0.86vw, 0.86rem);
+      font-weight: 700;
+      box-shadow: 0 6px 18px rgba(37, 99, 235, 0.3);
+      transition: transform 0.22s ease;
+    }
+
+    .live-btn:hover { transform: translateY(-2px); }
+
+    .lab-grid {
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 0.96fr 1.04fr;
+      gap: clamp(16px, 2vw, 24px);
+      align-items: stretch;
+    }
+
+    .lesson-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: clamp(14px, 1.8vh, 22px) clamp(18px, 2vw, 26px);
+      box-shadow: var(--shadow-md);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: clamp(8px, 1.1vh, 12px);
+      min-height: 0;
+    }
+
+    .lesson-panel h3 { font-size: clamp(1rem, 1.32vw, 1.26rem); font-weight: 800; color: var(--ink); line-height: 1.24; }
+    .lesson-panel p { font-size: clamp(0.8rem, 0.92vw, 0.9rem); line-height: 1.48; color: var(--ink-2); }
+
+    .math-card { background: var(--bg); border: 1px solid var(--border); border-left: 4px solid var(--navy); border-radius: 10px; padding: 8px 12px; }
+    .math-card-label { font-size: 0.66rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--navy); margin-bottom: 2px; }
+
+    .proof-card {
+      background: linear-gradient(180deg, #F8FAFC 0%, #EFF6FF 100%);
+      border: 1px solid rgba(37, 99, 235, 0.24);
+      border-radius: 12px;
+      padding: clamp(8px, 1.1vh, 12px) 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      overflow-x: auto;
+    }
+
+    .sim-panel {
+      background: var(--surface);
+      border: 1.5px solid rgba(37, 99, 235, 0.3);
+      border-radius: 20px;
+      padding: clamp(14px, 1.8vh, 22px) clamp(16px, 1.8vw, 24px);
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-height: 0;
+    }
+
+    .sim-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .sim-head h3 { font-size: clamp(0.98rem, 1.2vw, 1.14rem); font-weight: 800; color: var(--ink); }
+    .metric-pill { padding: 6px 12px; border-radius: 999px; background: rgba(16, 185, 129, 0.11); border: 1px solid rgba(16, 185, 129, 0.3); color: #047857; font-size: 0.74rem; font-weight: 700; }
+
+    .sim-controls { display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 10px; padding: 9px 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; align-items: center; }
+    .ctrl { display: flex; flex-direction: column; gap: 4px; }
+    .ctrl-top { display: flex; justify-content: space-between; font-size: 0.74rem; font-weight: 600; color: var(--ink-2); }
+    .ctrl-val { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--blue); }
+    input[type="range"] { -webkit-appearance: none; appearance: none; width: 100%; height: 6px; border-radius: 99px; background: #CBD5E1; outline: none; cursor: pointer; }
+    input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--blue); border: 2px solid #FFFFFF; }
+    select.sim-select { width: 100%; padding: 6px 8px; border-radius: 8px; border: 1px solid var(--border-strong); background: var(--surface); color: var(--ink); font-family: inherit; font-size: 0.74rem; font-weight: 600; cursor: pointer; }
+
+    .canvas-box { flex: 1; min-height: 160px; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: #FFFFFF; }
+    #normalCanvas { width: 100%; height: 100%; display: block; }
+    .sim-legend { display: flex; justify-content: center; flex-wrap: wrap; gap: 14px; font-size: 0.72rem; font-weight: 600; color: var(--ink-2); }
+    .leg { display: inline-flex; align-items: center; gap: 6px; }
+    .leg-line { width: 14px; height: 3px; border-radius: 2px; }
+    .leg-area { width: 12px; height: 12px; border-radius: 3px; background: rgba(16, 185, 129, 0.28); border: 1px solid var(--emerald); }
+    .leg-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--emerald); }
+
+    /* ==================== FOOTER & MODALS ==================== */
+    .footer { position: relative; z-index: 10; background: rgba(255, 255, 255, 0.95); border-top: 1px solid var(--border); padding: 10px clamp(24px, 4vw, 60px); display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-shrink: 0; }
+    .progress-bar { position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--border); }
+    .progress-fill { height: 100%; width: 5%; background: var(--grad); transition: width 0.45s var(--ease); }
+    .f-left, .f-right { display: flex; align-items: center; gap: 12px; }
+    .dots { display: flex; align-items: center; gap: 6px; }
+    .dot { width: 22px; height: 6px; border-radius: 999px; border: none; background: #CBD5E1; cursor: pointer; transition: width 0.3s var(--ease), background-color 0.3s ease; }
+    .dot.is-on { width: 36px; background: var(--blue); }
+    .step-text { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 600; color: var(--ink-3); }
+    .timer-pill { display: none; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface-soft); font-family: 'JetBrains Mono', monospace; font-size: 0.76rem; font-weight: 700; color: var(--navy); cursor: pointer; }
+    .timer-pill.is-show { display: inline-flex; }
+    .timer-pill.is-warn { background: rgba(245, 158, 11, 0.14); color: #B45309; }
+    .timer-pill.is-over { background: rgba(220, 38, 38, 0.12); color: var(--crimson); }
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); color: var(--ink); font-family: inherit; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
+    .btn:hover:not(:disabled) { border-color: var(--blue); color: var(--blue); }
+    .btn.primary { background: var(--grad); color: #FFFFFF; border-color: transparent; }
+    .btn.primary:hover:not(:disabled) { color: #FFFFFF; transform: translateY(-1px); }
+    .btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    .modal-backdrop { position: fixed; inset: 0; z-index: 60; background: rgba(15, 23, 42, 0.72); display: flex; align-items: center; justify-content: center; padding: 28px; opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 0.28s var(--ease), visibility 0s linear 0.28s; }
+    .modal-backdrop.is-open { opacity: 1; visibility: visible; pointer-events: auto; transition: opacity 0.28s var(--ease), visibility 0s linear 0s; }
+    .overview-box { width: 100%; max-width: 1120px; background: var(--bg); border-radius: 22px; padding: 26px; display: flex; flex-direction: column; gap: 18px; }
+    .overview-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+    .ov-tile { background: var(--surface); border: 1.5px solid var(--border); border-radius: 14px; padding: 16px; text-align: left; cursor: pointer; display: flex; flex-direction: column; gap: 6px; }
+    .ov-tile:hover, .ov-tile.is-on { border-color: var(--blue); }
+    .ov-num { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; color: var(--blue); }
+    .ov-title { font-size: 0.94rem; font-weight: 700; color: var(--ink); }
+    .ov-sub { font-size: 0.76rem; color: var(--ink-3); }
+
+    @media (max-width: 980px) {
+      .cover-grid-2d, .axes-shell, .stack-grid, .compare-grid, .pillars-grid, .flow-canvas, .p-inspector.has-json, .lab-grid, .overview-grid {
+        grid-template-columns: 1fr;
+      }
+      .f-arrow { display: none; }
+      .sim-controls { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="stage-bg" aria-hidden="true"></div>
+
+  <div class="deck">
+    <main class="viewport">
+
+      <!-- ==================== SLIDE 1: CAPA ==================== -->
+      <section class="slide is-active" data-slide="0" aria-label="Capa Institucional">
+        <div class="inner">
+          <div class="cover-grid-2d">
+            <div class="cover-content">
+              <div class="cover-logos">
+                <img src="assets/logo-ufba.jpg" alt="Brasão UFBA" />
+                <img src="assets/logo-pibic.png" alt="Logo PIBIC UFBA" />
+                <div class="cover-logos-sep"></div>
+                <div class="cover-inst">
+                  PIBIC &bull; UFBA<br />
+                  Instituto de Matemática e Estatística (IME)
+                </div>
+              </div>
+
+              <h1 class="cover-h1">
+                <span class="grad-text">Plataforma de Ensino Universitário Inteligente</span>
+              </h1>
+
+              <p class="cover-lead">
+                Geração automatizada de materiais didáticos de Estatística com <strong>sistema multi-agente</strong>.
+              </p>
+
+              <div class="cover-authors">
+                <div class="cover-person">
+                  <span class="cover-person-role">Autor (Estudante IC)</span>
+                  <span class="cover-person-name">Danilo Cadena Lima</span>
+                </div>
+                <div class="cover-person">
+                  <span class="cover-person-role">Coautor</span>
+                  <span class="cover-person-name">Luca Ferreira Barboza</span>
+                </div>
+                <div class="cover-person">
+                  <span class="cover-person-role">Orientador</span>
+                  <span class="cover-person-name">Prof. Ricardo Rocha</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Flat 2D Solid Minimalist Normal Curve Graphic (Animated) -->
+            <div class="cover-flat-card" aria-hidden="true">
+              <div class="cover-flat-head">
+                <span>N(&mu; = 0, &sigma; = 1)</span>
+                <span class="cover-flat-pill">68,27% (&mu; &plusmn; &sigma;)</span>
+              </div>
+              <svg viewBox="0 0 420 220" width="100%" height="auto">
+                <defs>
+                  <linearGradient id="coverPulseGrad" gradientUnits="userSpaceOnUse" x1="28" y1="0" x2="392" y2="0">
+                    <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.2" />
+                    <stop offset="50%" stop-color="#38BDF8" stop-opacity="1" />
+                    <stop offset="100%" stop-color="#2563EB" stop-opacity="0.2" />
+                  </linearGradient>
+                </defs>
+                <rect x="0" y="0" width="420" height="220" rx="12" fill="#F8FAFC" />
+                <line x1="24" y1="186" x2="396" y2="186" stroke="#CBD5E1" stroke-width="1.5" />
+                <line x1="210" y1="26" x2="210" y2="186" stroke="#F59E0B" stroke-width="2" stroke-dasharray="6 5" />
+                <path d="M150,186 L150,104 C172,58 190,34 210,34 C230,34 248,58 270,104 L270,186 Z" fill="#10B981" fill-opacity="0.24">
+                  <animate attributeName="fill-opacity" values="0.18;0.34;0.18" dur="3.6s" repeatCount="indefinite" />
+                </path>
+                <path d="M28,185 C82,185 118,170 150,104 C172,58 190,34 210,34 C230,34 248,58 270,104 C302,170 338,185 392,185" fill="none" stroke="#2563EB" stroke-width="4" stroke-linecap="round" />
+                <path d="M28,185 C82,185 118,170 150,104 C172,58 190,34 210,34 C230,34 248,58 270,104 C302,170 338,185 392,185" fill="none" stroke="url(#coverPulseGrad)" stroke-width="4.5" stroke-dasharray="48 160" stroke-linecap="round">
+                  <animate attributeName="stroke-dashoffset" from="208" to="0" dur="3.2s" repeatCount="indefinite" />
+                </path>
+                <circle cx="150" cy="104" r="5.5" fill="#10B981" stroke="#FFFFFF" stroke-width="2">
+                  <animate attributeName="r" values="5;7;5" dur="2.8s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="270" cy="104" r="5.5" fill="#10B981" stroke="#FFFFFF" stroke-width="2">
+                  <animate attributeName="r" values="5;7;5" dur="2.8s" begin="1.4s" repeatCount="indefinite" />
+                </circle>
+                <text x="150" y="205" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700" fill="#64748B">&mu;&minus;&sigma;</text>
+                <text x="210" y="205" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700" fill="#1E3A8A">&mu;</text>
+                <text x="270" y="205" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700" fill="#64748B">&mu;+&sigma;</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== SLIDE 2: DOIS EIXOS (FLIP REAL 2D) ==================== -->
+      <section class="slide" data-slide="1" aria-label="Dois Eixos Fundamentais">
+        <div class="inner">
+          <header class="s-head">
+            <h2 class="s-title">Dois Eixos Fundamentais da <span class="grad-text">Plataforma</span></h2>
+          </header>
+
+          <div class="axes-shell" id="axesShell">
+            <!-- CARD A: APOIO AO DOCENTE -->
+            <article class="axis-tile" data-axis="a">
+              <button class="focus-back-btn" data-reset-s2>&larr; Voltar</button>
+              <div class="axis-flat-thumb" aria-hidden="true">
+                <svg viewBox="0 0 320 110" width="100%" height="100%">
+                  <defs>
+                    <linearGradient id="s2ArrowGrad" gradientUnits="userSpaceOnUse" x1="106" y1="0" x2="128" y2="0">
+                      <stop offset="0%" stop-color="#2563EB" stop-opacity="0.25" />
+                      <stop offset="50%" stop-color="#38BDF8" stop-opacity="1" />
+                      <stop offset="100%" stop-color="#2563EB" stop-opacity="0.95" />
+                    </linearGradient>
+                  </defs>
+                  <rect x="14" y="14" width="84" height="82" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" />
+                  <rect x="26" y="28" width="44" height="7" rx="3.5" fill="#2563EB" />
+                  <rect x="26" y="42" width="60" height="5" rx="2.5" fill="#CBD5E1" />
+                  <rect x="26" y="53" width="52" height="5" rx="2.5" fill="#CBD5E1" />
+                  <rect x="26" y="68" width="38" height="14" rx="7" fill="#DBEAFE" />
+                  <line x1="104" y1="55" x2="128" y2="55" stroke="#CBD5E1" stroke-width="2.5" />
+                  <line x1="104" y1="55" x2="128" y2="55" stroke="url(#s2ArrowGrad)" stroke-width="3" stroke-dasharray="9 11" stroke-linecap="round">
+                    <animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.1s" repeatCount="indefinite" />
+                  </line>
+                  <polygon points="126,50 135,55 126,60" fill="#2563EB" />
+                  <rect x="142" y="14" width="164" height="22" rx="7" fill="#1E3A8A">
+                    <animate attributeName="opacity" values="0.82;1;0.82" dur="2.8s" repeatCount="indefinite" />
+                  </rect>
+                  <rect x="142" y="44" width="164" height="22" rx="7" fill="#2563EB">
+                    <animate attributeName="opacity" values="0.82;1;0.82" dur="2.8s" begin="0.5s" repeatCount="indefinite" />
+                  </rect>
+                  <rect x="142" y="74" width="112" height="22" rx="7" fill="#10B981">
+                    <animate attributeName="opacity" values="0.82;1;0.82" dur="2.8s" begin="1s" repeatCount="indefinite" />
+                  </rect>
+                </svg>
+              </div>
+              <h3>Apoio ao Docente</h3>
+              <p>Transforma ementas e materiais base em aulas completas e personalizadas.</p>
+              <span class="axis-more">Ver detalhes &rarr;</span>
+
+              <div class="focus-list">
+                <div class="focus-point">
+                  <strong>Redução da carga</strong>
+                  <span>Preparar aulas completas, rigorosas e personalizadas exige tempo; a plataforma automatiza essa estruturação.</span>
+                </div>
+                <div class="focus-point">
+                  <strong>Notação e regras do professor</strong>
+                  <span>Um agente opcional extrai regras de notação e observações específicas do professor.</span>
+                </div>
+                <div class="focus-point">
+                  <strong>Revisão e controle de qualidade</strong>
+                  <span>O conteúdo passa por uma revisão científica e validação de LaTeX antes de ser salvo e disponibilizado.</span>
+                </div>
+                <div class="focus-point">
+                  <strong>Organização por turmas e aulas</strong>
+                  <span>Armazenamento em nuvem no Firebase para manter turmas e aulas geradas.</span>
+                </div>
+              </div>
+            </article>
+
+            <!-- CARD B: AMBIENTE DE ESTUDO INTERATIVO -->
+            <article class="axis-tile" data-axis="b">
+              <button class="focus-back-btn" data-reset-s2>&larr; Voltar</button>
+              <div class="axis-flat-thumb" aria-hidden="true">
+                <svg viewBox="0 0 320 110" width="100%" height="100%">
+                  <defs>
+                    <linearGradient id="s2BellPulse" gradientUnits="userSpaceOnUse" x1="24" y1="0" x2="296" y2="0">
+                      <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.2" />
+                      <stop offset="50%" stop-color="#38BDF8" stop-opacity="1" />
+                      <stop offset="100%" stop-color="#2563EB" stop-opacity="0.2" />
+                    </linearGradient>
+                  </defs>
+                  <line x1="20" y1="90" x2="300" y2="90" stroke="#CBD5E1" stroke-width="1.5" />
+                  <path d="M120,90 L120,48 C134,26 146,18 160,18 C174,18 186,26 200,48 L200,90 Z" fill="#10B981" fill-opacity="0.26">
+                    <animate attributeName="fill-opacity" values="0.18;0.36;0.18" dur="3.4s" repeatCount="indefinite" />
+                  </path>
+                  <path d="M24,89 C68,89 96,80 120,48 C134,26 146,18 160,18 C174,18 186,26 200,48 C224,80 252,89 296,89" fill="none" stroke="#2563EB" stroke-width="3.5" stroke-linecap="round" />
+                  <path d="M24,89 C68,89 96,80 120,48 C134,26 146,18 160,18 C174,18 186,26 200,48 C224,80 252,89 296,89" fill="none" stroke="url(#s2BellPulse)" stroke-width="4" stroke-dasharray="36 120" stroke-linecap="round">
+                    <animate attributeName="stroke-dashoffset" from="156" to="0" dur="2.8s" repeatCount="indefinite" />
+                  </path>
+                  <line x1="160" y1="16" x2="160" y2="90" stroke="#F59E0B" stroke-width="2" stroke-dasharray="4 4" />
+                  <circle cx="120" cy="48" r="4.5" fill="#10B981">
+                    <animate attributeName="r" values="4;6;4" dur="2.6s" repeatCount="indefinite" />
+                  </circle>
+                  <circle cx="200" cy="48" r="4.5" fill="#10B981">
+                    <animate attributeName="r" values="4;6;4" dur="2.6s" begin="1.3s" repeatCount="indefinite" />
+                  </circle>
+                </svg>
+              </div>
+              <h3>Ambiente de Estudo Interativo</h3>
+              <p>Rompe com os livros tradicionais estáticos, facilitando o aprendizado e a recuperação de aulas perdidas.</p>
+              <span class="axis-more">Ver detalhes &rarr;</span>
+
+              <div class="focus-list">
+                <div class="focus-point">
+                  <strong>Recuperação de aulas perdidas</strong>
+                  <span>Ajuda o aluno que faltou a uma aula e precisa recuperar o conteúdo sozinho, além de anotações estáticas.</span>
+                </div>
+                <div class="focus-point">
+                  <strong>Cálculos e provas passo a passo</strong>
+                  <span>Exibe deduções matemáticas passo a passo com fórmulas renderizadas no LaTeX.</span>
+                </div>
+                <div class="focus-point">
+                  <strong>Simuladores gráficos interativos</strong>
+                  <span>Permite alterar parâmetros e ver o gráfico mudar em tempo real, tornando a teoria mais visual e acessível.</span>
+                </div>
+                <div class="focus-point">
+                  <strong>Caderno de exercícios</strong>
+                  <span>Questões práticas com dicas e gabaritos passo a passo baseados no conteúdo da aula.</span>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== SLIDE 3: TECNOLOGIAS (ENXUTO) ==================== -->
+      <section class="slide" data-slide="2" aria-label="Tecnologias Utilizadas">
+        <div class="inner">
+          <header class="s-head">
+            <h2 class="s-title">Tecnologias <span class="grad-text">Utilizadas</span></h2>
+          </header>
+
+          <div class="stack-grid">
+            <article class="stack-item" style="--i:0">
+              <div class="stack-logos-row">
+                <div class="logo-group">
+                  <div class="tech-logo-box"><img src="https://cdn.simpleicons.org/nextdotjs/0F172A" alt="Next.js" /></div>
+                  <div class="tech-logo-box"><img src="https://cdn.simpleicons.org/react/2563EB" alt="React" /></div>
+                  <div class="tech-logo-box"><img src="https://cdn.simpleicons.org/tailwindcss/0EA5E9" alt="Tailwind CSS" /></div>
+                </div>
+                <span class="stack-cat">Frontend</span>
+              </div>
+              <div class="stack-names">Next.js &bull; React &bull; Tailwind CSS</div>
+            </article>
+
+            <article class="stack-item" style="--i:1">
+              <div class="stack-logos-row">
+                <div class="logo-group">
+                  <div class="tech-logo-box"><img src="https://cdn.simpleicons.org/python/1E3A8A" alt="Python" /></div>
+                  <div class="tech-logo-box"><img src="https://cdn.simpleicons.org/fastapi/059669" alt="FastAPI" /></div>
+                </div>
+                <span class="stack-cat">Backend</span>
+              </div>
+              <div class="stack-names">Python &bull; FastAPI</div>
+            </article>
+
+            <article class="stack-item" style="--i:2">
+              <div class="stack-logos-row">
+                <div class="logo-group">
+                  <div class="tech-logo-box"><img src="https://cdn.simpleicons.org/googlegemini/2563EB" alt="Google Gemini" /></div>
+                </div>
+                <span class="stack-cat">Modelos Gemini</span>
+              </div>
+              <div class="stack-names">Gemini 3.6 Flash &amp; 3.5 Flash-Lite</div>
+            </article>
+
+            <article class="stack-item" style="--i:3">
+              <div class="stack-logos-row">
+                <div class="logo-group">
+                  <div class="tech-logo-box"><img src="https://cdn.simpleicons.org/pydantic/E92063" alt="Pydantic" /></div>
+                  <div class="tech-logo-box"><img src="https://cdn.simpleicons.org/json/1E3A8A" alt="JSON" /></div>
+                </div>
+                <span class="stack-cat">Estruturação</span>
+              </div>
+              <div class="stack-names">Pydantic (JSON)</div>
+            </article>
+
+            <article class="stack-item" style="--i:4">
+              <div class="stack-logos-row">
+                <div class="logo-group">
+                  <div class="tech-logo-box"><img src="https://cdn.simpleicons.org/firebase/F59E0B" alt="Firebase" /></div>
+                </div>
+                <span class="stack-cat">Armazenamento</span>
+              </div>
+              <div class="stack-names">Firebase</div>
+            </article>
+
+            <article class="stack-item" style="--i:5">
+              <div class="stack-logos-row">
+                <div class="logo-group">
+                  <div class="tech-logo-box"><img src="https://cdn.simpleicons.org/nodedotjs/16A34A" alt="Node.js" /></div>
+                  <div class="tech-logo-box"><img src="https://cdn.simpleicons.org/plotly/2563EB" alt="Plotly" /></div>
+                  <div class="tech-logo-box"><img src="https://cdn.simpleicons.org/latex/0F172A" alt="KaTeX / LaTeX" /></div>
+                </div>
+                <span class="stack-cat">Matemática e Gráficos</span>
+              </div>
+              <div class="stack-names">KaTeX &bull; Node.js &bull; Plotly.js</div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== SLIDE 4: POR QUE NÃO USAR UM PROMPT ÚNICO? ==================== -->
+      <section class="slide" data-slide="3" aria-label="Por que não usar um Prompt Único?">
+        <div class="inner">
+          <header class="s-head">
+            <h2 class="s-title">Por que não usar um <span class="grad-text">Prompt Único</span>?</h2>
+          </header>
+
+          <div class="compare-grid">
+            <article class="compare-col is-bad">
+              <div>
+                <span class="col-pill">Dificuldades Iniciais</span>
+                <h3 style="margin-top:10px;">Prompt Único</h3>
+              </div>
+              <div class="compare-rows">
+                <div class="c-row">
+                  <strong>Limite de tokens e texto raso</strong>
+                  <span>Requisitar uma aula completa em um único comando força o modelo a ser generalista.</span>
+                </div>
+                <div class="c-row">
+                  <strong>Alucinação de formato e notação</strong>
+                </div>
+                <div class="c-row">
+                  <strong>Quebras na renderização de fórmula</strong>
+                </div>
+                <div class="c-row">
+                  <strong>Dilema de qualidade, latência e custo</strong>
+                </div>
+              </div>
+            </article>
+
+            <article class="compare-col is-good">
+              <div>
+                <span class="col-pill">Soluções do Sistema</span>
+                <h3 style="margin-top:10px;">Sistema Multi-Agente</h3>
+              </div>
+              <div class="compare-rows">
+                <div class="c-row">
+                  <strong>Sistema multi-agente com Agente Roteirista</strong>
+                  <span>Divide o tema em subtópicos lógicos para manter a profundidade da aula.</span>
+                </div>
+                <div class="c-row">
+                  <strong>Saída estruturada com Pydantic</strong>
+                </div>
+                <div class="c-row">
+                  <strong>Verificação de LaTeX</strong>
+                </div>
+                <div class="c-row">
+                  <strong>Divisão mista de modelos e respostas em paralelo</strong>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== SLIDE 5: ESTABILIDADE, CUSTO E QUALIDADE ==================== -->
+      <section class="slide" data-slide="4" aria-label="Estabilidade, Custo e Qualidade">
+        <div class="inner">
+          <header class="s-head">
+            <h2 class="s-title">Estabilidade, <span class="grad-text">Custo e Qualidade</span></h2>
+          </header>
+
+          <div class="pillars-grid" id="pillarsGrid" data-spot="0">
+            <article class="pillar-card" data-b="1">
+              <div class="pillar-top">
+                <span class="pillar-num">01</span>
+                <span class="pillar-badge">Pydantic &bull; JSON</span>
+              </div>
+              <h3>Saída estruturada</h3>
+              <p>Força a IA a responder sempre no formato JSON esperado pela interface, evitando desvios de formato.</p>
+              <div class="flow-strip">{"titulo": "Normal Padrão", "formula": "$$Z = \\frac{X-\\mu}{\\sigma}$$"}</div>
+            </article>
+
+            <article class="pillar-card" data-b="2">
+              <div class="pillar-top">
+                <span class="pillar-num">02</span>
+                <span class="pillar-badge">RAG &amp; PDFs</span>
+              </div>
+              <h3>RAG e diretrizes do docente</h3>
+              <p>Consulta ementas, materiais base e regras de notação específicas do professor durante a escrita.</p>
+              <div class="flow-strip">Ementa + Materiais do Docente &rarr; RAG &rarr; Fidelidade à Disciplina</div>
+            </article>
+
+            <article class="pillar-card" data-b="3">
+              <div class="pillar-top">
+                <span class="pillar-num">03</span>
+                <span class="pillar-badge">Custo e Latência</span>
+              </div>
+              <h3>Divisão mista de modelos</h3>
+              <p>Gemini 3.6 Flash para raciocínios teóricos densos e simuladores; Gemini 3.5 Flash-Lite para etapas rápidas em paralelo.</p>
+              <div class="flow-strip">3.6 Flash (Complexo) + 3.5 Flash-Lite (Rápido) &rarr; Em paralelo</div>
+            </article>
+
+            <article class="pillar-card" data-b="4">
+              <div class="pillar-top">
+                <span class="pillar-num">04</span>
+                <span class="pillar-badge">KaTeX</span>
+              </div>
+              <h3>Verificação de fórmula LaTeX</h3>
+              <p>Código sanitizador e agente validador em loop com compilador determinístico antes de salvar a aula.</p>
+              <div class="flow-strip">Sanitizador &rarr; Compilador KaTeX + Validador &rarr; Aula salva</div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== SLIDE 6: FLUXOGRAMA DESENHADO COM SETAS BRILHANDO ==================== -->
+      <section class="slide" data-slide="5" aria-label="Fluxograma na Geração de Aula">
+        <div class="inner">
+          <header class="s-head">
+            <h2 class="s-title">Fluxograma na <span class="grad-text">Geração de Aula</span></h2>
+          </header>
+
+          <div class="pipe-wrap">
+            <div class="flow-canvas" id="pipeGrid">
+              <article class="p-node" data-step="1">
+                <span class="p-step">01 &bull; OPCIONAL</span>
+                <h3>Regras</h3>
+                <p>Notação e estilo do professor.</p>
+                <span class="m-badge m-lite" style="width:fit-content;">Flash-Lite</span>
+              </article>
+
+              <div class="f-arrow" aria-hidden="true">
+                <svg viewBox="0 0 26 24">
+                  <defs>
+                    <linearGradient id="gFlow" gradientUnits="userSpaceOnUse" x1="1" y1="0" x2="24" y2="0">
+                      <stop offset="0%" stop-color="#1E3A8A" stop-opacity="0.35" />
+                      <stop offset="50%" stop-color="#2563EB" stop-opacity="1" />
+                      <stop offset="100%" stop-color="#38BDF8" stop-opacity="0.95" />
+                    </linearGradient>
+                  </defs>
+                  <line x1="1" y1="12" x2="18" y2="12" stroke="#CBD5E1" stroke-width="2" />
+                  <line x1="1" y1="12" x2="18" y2="12" stroke="url(#gFlow)" stroke-width="2.8" stroke-dasharray="8 10" stroke-linecap="round">
+                    <animate attributeName="stroke-dashoffset" from="18" to="0" dur="1s" repeatCount="indefinite" />
+                  </line>
+                  <polygon points="17,8 25,12 17,16" fill="#2563EB" />
+                </svg>
+              </div>
+
+              <article class="p-node" data-step="2">
+                <span class="p-step">02 &bull; RASCUNHO</span>
+                <h3>Roteirista</h3>
+                <p>Divide em subtópicos lógicos.</p>
+                <span class="m-badge m-lite" style="width:fit-content;">Flash-Lite</span>
+              </article>
+
+              <div class="f-arrow" aria-hidden="true">
+                <svg viewBox="0 0 26 24">
+                  <line x1="1" y1="12" x2="18" y2="12" stroke="#CBD5E1" stroke-width="2" />
+                  <line x1="1" y1="12" x2="18" y2="12" stroke="url(#gFlow)" stroke-width="2.8" stroke-dasharray="8 10" stroke-linecap="round">
+                    <animate attributeName="stroke-dashoffset" from="18" to="0" dur="1s" repeatCount="indefinite" />
+                  </line>
+                  <polygon points="17,8 25,12 17,16" fill="#2563EB" />
+                </svg>
+              </div>
+
+              <article class="p-node" data-step="3">
+                <span class="p-step">03 &bull; LOOP</span>
+                <h3>Redator &harr; Auditor</h3>
+                <p>Escreve e revisa até aprovar.</p>
+                <div class="loop-badge"><span>&circlearrowleft; Reprovar</span><span>Aprovar &rarr;</span></div>
+              </article>
+
+              <div class="f-arrow" aria-hidden="true">
+                <svg viewBox="0 0 26 24">
+                  <line x1="1" y1="12" x2="18" y2="12" stroke="#CBD5E1" stroke-width="2" />
+                  <line x1="1" y1="12" x2="18" y2="12" stroke="url(#gFlow)" stroke-width="2.8" stroke-dasharray="8 10" stroke-linecap="round">
+                    <animate attributeName="stroke-dashoffset" from="18" to="0" dur="1s" repeatCount="indefinite" />
+                  </line>
+                  <polygon points="17,8 25,12 17,16" fill="#2563EB" />
+                </svg>
+              </div>
+
+              <article class="p-node" data-step="4">
+                <span class="p-step">04 &bull; COESÃO</span>
+                <h3>Orquestrador</h3>
+                <p>Estrutura e organiza a aula.</p>
+                <span class="m-badge m-flash" style="width:fit-content;">3.6 Flash</span>
+              </article>
+
+              <div class="f-arrow" aria-hidden="true">
+                <svg viewBox="0 0 26 64">
+                  <path d="M1,32 C10,32 10,14 19,14" fill="none" stroke="#CBD5E1" stroke-width="2" />
+                  <path d="M1,32 C10,32 10,50 19,50" fill="none" stroke="#CBD5E1" stroke-width="2" />
+                  <path d="M1,32 C10,32 10,14 19,14" fill="none" stroke="url(#gFlow)" stroke-width="2.6" stroke-dasharray="8 10">
+                    <animate attributeName="stroke-dashoffset" from="18" to="0" dur="1s" repeatCount="indefinite" />
+                  </path>
+                  <path d="M1,32 C10,32 10,50 19,50" fill="none" stroke="url(#gFlow)" stroke-width="2.6" stroke-dasharray="8 10">
+                    <animate attributeName="stroke-dashoffset" from="18" to="0" dur="1s" repeatCount="indefinite" />
+                  </path>
+                  <polygon points="18,10 25,14 18,18" fill="#2563EB" />
+                  <polygon points="18,46 25,50 18,54" fill="#2563EB" />
+                </svg>
+              </div>
+
+              <article class="p-node" data-step="5">
+                <span class="p-step">05 &bull; PARALELO</span>
+                <div class="split-mini">
+                  <div class="split-chip"><span>Exercícios</span><span class="m-badge m-lite">Lite</span></div>
+                  <div class="split-chip"><span>Simulador</span><span class="m-badge m-flash">3.6</span></div>
+                </div>
+              </article>
+
+              <div class="f-arrow" aria-hidden="true">
+                <svg viewBox="0 0 26 64">
+                  <path d="M1,14 C10,14 10,32 19,32" fill="none" stroke="#CBD5E1" stroke-width="2" />
+                  <path d="M1,50 C10,50 10,32 19,32" fill="none" stroke="#CBD5E1" stroke-width="2" />
+                  <path d="M1,14 C10,14 10,32 19,32" fill="none" stroke="url(#gFlow)" stroke-width="2.6" stroke-dasharray="8 10">
+                    <animate attributeName="stroke-dashoffset" from="18" to="0" dur="1s" repeatCount="indefinite" />
+                  </path>
+                  <path d="M1,50 C10,50 10,32 19,32" fill="none" stroke="url(#gFlow)" stroke-width="2.6" stroke-dasharray="8 10">
+                    <animate attributeName="stroke-dashoffset" from="18" to="0" dur="1s" repeatCount="indefinite" />
+                  </path>
+                  <polygon points="18,28 25,32 18,36" fill="#2563EB" />
+                </svg>
+              </div>
+
+              <article class="p-node" data-step="6">
+                <span class="p-step">06 &bull; ENTREGA</span>
+                <h3>LaTeX &rarr; Final</h3>
+                <p>Valida fórmulas e salva no Firebase.</p>
+                <span class="m-badge m-lite" style="width:fit-content;">KaTeX</span>
+              </article>
+            </div>
+
+            <div class="p-inspector" id="pipelineInspector">
+              <div class="insp-col">
+                <span class="insp-label" id="inspTitle">Fluxo de Formação de Uma Aula</span>
+                <p class="insp-text" id="inspRole">Cada agente cuida de uma etapa específica da aula, superando o limite de tokens de um único prompt. Clique em um bloco acima ou avance para ver os detalhes.</p>
+              </div>
+              <div class="insp-code" id="inspJson"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== SLIDE 7: EXEMPLO REAL & LAB AO VIVO ==================== -->
+      <section class="slide" data-slide="6" aria-label="Exemplo Real: Aula de Probabilidade I">
+        <div class="inner">
+          <header class="s-head">
+            <h2 class="s-title">Exemplo Real: <span class="grad-text">Aula de Probabilidade I</span></h2>
+            <a class="live-btn" href="http://pibic-jade.vercel.app/login" target="_blank" rel="noopener noreferrer">
+              Abrir Plataforma ao Vivo &#8599;
+            </a>
+          </header>
+
+          <div class="lab-grid">
+            <article class="lesson-panel">
+              <div>
+                <h3>4. Padronização de Variáveis Aleatórias Normais e a Normal Padrão</h3>
+                <p style="margin-top:6px;">
+                  A padronização reescala qualquer distribuição normal com parâmetros <span class="katex-slot" data-tex="\mu">μ</span> e <span class="katex-slot" data-tex="\sigma">σ</span> para a forma canônica universal, com média zero e variância unitária.
+                </p>
+              </div>
+
+              <div class="math-card">
+                <div class="math-card-label">Fórmula / Definição Formal</div>
+                <div class="katex-slot" data-display="true" data-tex="Z = \frac{X - \mu}{\sigma} \sim \mathcal{N}(0, 1)">Z = (X − μ)/σ ~ N(0, 1)</div>
+              </div>
+
+              <div class="proof-card">
+                <div class="math-card-label">Demonstração Passo a Passo</div>
+                <div class="katex-slot" data-display="true" data-tex="\mathbb{E}[Z] = \mathbb{E}\!\left[\frac{X - \mu}{\sigma}\right] = \frac{1}{\sigma}\big(\mathbb{E}[X] - \mu\big) = \frac{\mu - \mu}{\sigma} = 0">E[Z] = 0</div>
+                <div class="katex-slot" data-display="true" data-tex="\operatorname{Var}(Z) = \operatorname{Var}\!\left[\frac{X - \mu}{\sigma}\right] = \frac{1}{\sigma^2}\operatorname{Var}(X - \mu) = \frac{\sigma^2}{\sigma^2} = 1 \implies Z \sim \mathcal{N}(0, 1)">Var(Z) = 1 ⇒ Z ~ N(0, 1)</div>
+              </div>
+            </article>
+
+            <article class="sim-panel">
+              <div class="sim-head">
+                <h3>Visualizador da Curva Normal</h3>
+                <span class="metric-pill" id="simAreaPill">Área Central = 68,27%</span>
+              </div>
+
+              <div class="sim-controls">
+                <div class="ctrl">
+                  <div class="ctrl-top"><span>Média (&mu;)</span><span class="ctrl-val" id="muVal">0.0</span></div>
+                  <input id="muSlider" type="range" min="-4" max="4" step="0.1" value="0" aria-label="Média mu" />
+                </div>
+                <div class="ctrl">
+                  <div class="ctrl-top"><span>Desvio (&sigma;)</span><span class="ctrl-val" id="sigmaVal">1.0</span></div>
+                  <input id="sigmaSlider" type="range" min="0.5" max="3.0" step="0.1" value="1.0" aria-label="Desvio padrão sigma" />
+                </div>
+                <div class="ctrl">
+                  <div class="ctrl-top"><span>Intervalo</span></div>
+                  <select id="bandSelect" class="sim-select" aria-label="Intervalo geométrico">
+                    <option value="1">Intervalo Central (μ ± σ — 68,27%)</option>
+                    <option value="2">Dois Desvios (μ ± 2σ — 95,45%)</option>
+                    <option value="3">Três Desvios (μ ± 3σ — 99,73%)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="canvas-box">
+                <canvas id="normalCanvas"></canvas>
+              </div>
+
+              <div class="sim-legend">
+                <span class="leg"><span class="leg-line" style="background:#2563EB"></span> f(x)</span>
+                <span class="leg"><span class="leg-line" style="border-top:2.5px dashed #F59E0B; height:0"></span> Média (x = &mu;)</span>
+                <span class="leg"><span class="leg-area"></span> Área Central</span>
+                <span class="leg"><span class="leg-dot"></span> Pontos de Inflexão (&mu; &plusmn; &sigma;)</span>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="footer">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="f-left">
+        <div class="dots" id="dots">
+          <button class="dot is-on" data-go="0" title="Slide 1"></button>
+          <button class="dot" data-go="1" title="Slide 2"></button>
+          <button class="dot" data-go="2" title="Slide 3"></button>
+          <button class="dot" data-go="3" title="Slide 4"></button>
+          <button class="dot" data-go="4" title="Slide 5"></button>
+          <button class="dot" data-go="5" title="Slide 6"></button>
+          <button class="dot" data-go="6" title="Slide 7"></button>
+        </div>
+        <span class="step-text" id="stepText">01 / 07</span>
+      </div>
+      <div class="f-right">
+        <button class="timer-pill" id="timerPill" title="Cronômetro 10 min (T para alternar, clique para zerar)">&#9201; <span id="timerText">10:00</span></button>
+        <button class="btn" id="prevBtn">&larr; Anterior</button>
+        <button class="btn primary" id="nextBtn">Próximo &rarr;</button>
+      </div>
+    </footer>
+  </div>
+
+  <div class="modal-backdrop" id="overviewModal" aria-hidden="true">
+    <div class="overview-box">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h3 style="font-size:1.3rem; font-weight:800;">Slides</h3>
+        <button class="btn" id="closeOverviewBtn">Fechar &times;</button>
+      </div>
+      <div class="overview-grid" id="overviewGrid"></div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      window.__renderAllMath = function () {
+        if (!window.katex) return;
+        document.querySelectorAll('.katex-slot').forEach((el) => {
+          if (el.dataset.rendered === '1') return;
+          const tex = el.getAttribute('data-tex');
+          if (!tex) return;
+          try {
+            window.katex.render(tex, el, { displayMode: el.getAttribute('data-display') === 'true', throwOnError: false, strict: false });
+            el.dataset.rendered = '1';
+          } catch (_) {}
+        });
+      };
+      document.addEventListener('DOMContentLoaded', window.__renderAllMath);
+      window.addEventListener('load', window.__renderAllMath);
+
+      const meta = [
+        { title: 'Capa Institucional', sub: 'PIBIC • UFBA • IME', max: 0 },
+        { title: 'Dois Eixos Fundamentais', sub: 'Apoio ao Docente & Ambiente Interativo', max: 3 },
+        { title: 'Tecnologias Utilizadas', sub: 'Next.js, FastAPI, Gemini, Firebase', max: 0 },
+        { title: 'Por que não usar Prompt Único?', sub: 'Dificuldades vs. Sistema Multi-Agente', max: 0 },
+        { title: 'Estabilidade, Custo e Qualidade', sub: 'JSON, RAG, Divisão Mista e LaTeX', max: 4 },
+        { title: 'Fluxograma na Geração de Aula', sub: 'Etapas 1 a 6 em Detalhe', max: 6 },
+        { title: 'Exemplo Real: Probabilidade I', sub: 'Curva Normal & Simulador', max: 0 }
+      ];
+
+      const timeline = [];
+      meta.forEach((m, s) => { for (let st = 0; st <= m.max; st++) timeline.push({ s, st }); });
+
+      let curSlide = 0, curStep = 0, activeAxisFlip = null;
+      const slides = Array.from(document.querySelectorAll('.slide'));
+      const dots = Array.from(document.querySelectorAll('.dot'));
+      const progressFill = document.getElementById('progressFill');
+      const stepText = document.getElementById('stepText');
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+
+      const axisCards = {
+        a: document.querySelector('.axis-tile[data-axis="a"]'),
+        b: document.querySelector('.axis-tile[data-axis="b"]')
+      };
+
+      function setAxisFlip(targetKey) {
+        if (activeAxisFlip === targetKey) return;
+        if (activeAxisFlip && !targetKey) {
+          const card = axisCards[activeAxisFlip];
+          const other = axisCards[activeAxisFlip === 'a' ? 'b' : 'a'];
+          const first = card.getBoundingClientRect();
+          card.classList.remove('is-revealed', 'is-zoomed');
+          other.classList.remove('is-hidden');
+          const last = card.getBoundingClientRect();
+          const dx = first.left - last.left, dy = first.top - last.top;
+          const sx = first.width / (last.width || 1), sy = first.height / (last.height || 1);
+          card.style.transition = 'none';
+          card.style.transform = `translate3d(${dx}px, ${dy}px, 0) scale(${sx}, ${sy})`;
+          card.getBoundingClientRect();
+          requestAnimationFrame(() => {
+            card.style.transition = 'transform 0.56s cubic-bezier(0.22, 1, 0.36, 1)';
+            card.style.transform = 'none';
+          });
+          setTimeout(() => { card.style.transition = ''; }, 580);
+          activeAxisFlip = null;
+          return;
+        }
+        if (activeAxisFlip && targetKey && activeAxisFlip !== targetKey) {
+          axisCards[activeAxisFlip].classList.remove('is-revealed', 'is-zoomed');
+          axisCards[activeAxisFlip].style.transform = '';
+          activeAxisFlip = null;
+        }
+        if (targetKey) {
+          const card = axisCards[targetKey];
+          const other = axisCards[targetKey === 'a' ? 'b' : 'a'];
+          const first = card.getBoundingClientRect();
+          other.classList.add('is-hidden');
+          card.classList.add('is-zoomed');
+          const last = card.getBoundingClientRect();
+          const dx = first.left - last.left, dy = first.top - last.top;
+          const sx = first.width / (last.width || 1), sy = first.height / (last.height || 1);
+          card.style.transition = 'none';
+          card.style.transform = `translate3d(${dx}px, ${dy}px, 0) scale(${sx}, ${sy})`;
+          card.getBoundingClientRect();
+          requestAnimationFrame(() => {
+            card.style.transition = 'transform 0.6s cubic-bezier(0.22, 1, 0.36, 1)';
+            card.style.transform = 'none';
+            card.classList.add('is-revealed');
+          });
+          setTimeout(() => { card.style.transition = ''; }, 620);
+          activeAxisFlip = targetKey;
+        }
+      }
+
+      const pillarsGrid = document.getElementById('pillarsGrid');
+      const pipeNodes = Array.from(document.querySelectorAll('#pipeGrid .p-node'));
+      const pipelineInspector = document.getElementById('pipelineInspector');
+      const inspTitle = document.getElementById('inspTitle');
+      const inspRole = document.getElementById('inspRole');
+      const inspJson = document.getElementById('inspJson');
+
+      const pipeData = {
+        0: {
+          title: 'Fluxo de Formação de Uma Aula',
+          role: 'Cada agente cuida de uma etapa específica da aula, superando o limite de tokens de um único prompt. Clique em um bloco acima ou avance para ver os detalhes.',
+          json: ''
+        },
+        1: {
+          title: '01 • Extração de Regras (Opcional • Flash-Lite)',
+          role: 'Extrai as regras de notação e observações específicas do professor, definindo as diretrizes que serão seguidas em toda a aula.',
+          json: '{\n  "tom_professor": "Rigoroso e didático",\n  "notacoes": [{"conceito": "média", "latex": "\\\\mu"}]\n}'
+        },
+        2: {
+          title: '02 • Agente Roteirista (Flash-Lite)',
+          role: 'Rascunha a estrutura da aula dividindo o tema em subtópicos lógicos para evitar textos curtos ou superficiais.',
+          json: '{\n  "topico_principal": "Distribuição Normal",\n  "subtopicos": ["Curva em Sino", "Normal Padrão", "Regra Empírica"]\n}'
+        },
+        3: {
+          title: '03 • Loop de Correção: Redator ↔ Auditor',
+          role: 'O Redator escreve o texto detalhado com RAG e o Auditor verifica rigor e diretrizes, devolvendo para reescrita ou aprovando.',
+          json: '{\n  "aprovado": true,\n  "comentario_correcao": null\n}'
+        },
+        4: {
+          title: '04 • Agente Orquestrador (Gemini 3.6 Flash)',
+          role: 'Organiza e costura o conteúdo redigido entre os subtópicos para a aula fluir como um capítulo contínuo.',
+          json: '{\n  "paginas_conteudo": ["..."],\n  "simuladores_mapeados": ["Visualizador da Curva Normal"]\n}'
+        },
+        5: {
+          title: '05 • Frentes Paralelas: Exercícios || Simulador',
+          role: 'Gera exercícios práticos com dicas e gabaritos (Flash-Lite) em paralelo com os simuladores gráficos interativos (3.6 Flash).',
+          json: '{\n  "exercicios_fechados": 5,\n  "exercicios_discursivos": 3,\n  "simulador_interativo": "Plotly.react(...) + sliders"\n}'
+        },
+        6: {
+          title: '06 • Verificação de LaTeX e Entrega',
+          role: 'Código sanitizador + validador automático em loop conferem toda a sintaxe LaTeX antes de salvar a aula no Firebase.',
+          json: '{\n  "erros_katex": 0,\n  "status": "Aula salva no Firebase"\n}'
+        }
+      };
+
+      function syncSubStates() {
+        if (curSlide === 1) {
+          const map = { 0: null, 1: 'a', 2: null, 3: 'b' };
+          setAxisFlip(map[curStep]);
+        } else if (activeAxisFlip) {
+          axisCards[activeAxisFlip].classList.remove('is-revealed', 'is-zoomed');
+          axisCards[activeAxisFlip].style.transform = '';
+          axisCards.a.classList.remove('is-hidden');
+          axisCards.b.classList.remove('is-hidden');
+          activeAxisFlip = null;
+        }
+
+        if (curSlide === 4) {
+          pillarsGrid.setAttribute('data-spot', String(curStep));
+        } else {
+          pillarsGrid.setAttribute('data-spot', '0');
+        }
+
+        if (curSlide === 5) {
+          pipeNodes.forEach((n) => {
+            const st = Number(n.dataset.step);
+            n.classList.toggle('is-on', curStep !== 0 && st === curStep);
+            n.classList.toggle('is-off', curStep !== 0 && st !== curStep);
+          });
+          const d = pipeData[curStep] || pipeData[0];
+          inspTitle.textContent = d.title;
+          inspRole.textContent = d.role;
+          inspJson.textContent = d.json;
+          pipelineInspector.classList.toggle('has-json', curStep !== 0);
+        } else {
+          pipeNodes.forEach((n) => n.classList.remove('is-on', 'is-off'));
+          pipelineInspector.classList.remove('has-json');
+        }
+      }
+
+      function renderDeck() {
+        slides.forEach((sl, i) => {
+          sl.classList.remove('is-active', 'is-prev');
+          if (i === curSlide) sl.classList.add('is-active');
+          else if (i < curSlide) sl.classList.add('is-prev');
+        });
+        dots.forEach((d, i) => d.classList.toggle('is-on', i === curSlide));
+        const idx = timeline.findIndex((t) => t.s === curSlide && t.st === curStep);
+        progressFill.style.width = `${(((idx + 1) / timeline.length) * 100).toFixed(1)}%`;
+        const sNum = String(curSlide + 1).padStart(2, '0');
+        stepText.textContent = meta[curSlide].max > 0 ? `${sNum} / 07  •  ${curStep + 1}/${meta[curSlide].max + 1}` : `${sNum} / 07`;
+        prevBtn.disabled = curSlide === 0 && curStep === 0;
+        nextBtn.disabled = curSlide === slides.length - 1 && curStep === meta[curSlide].max;
+        syncSubStates();
+        if (curSlide === 6) requestAnimationFrame(drawNormal);
+      }
+
+      function next() {
+        if (curStep < meta[curSlide].max) curStep++;
+        else if (curSlide < slides.length - 1) { curSlide++; curStep = 0; }
+        renderDeck();
+      }
+
+      function prev() {
+        if (curStep > 0) curStep--;
+        else if (curSlide > 0) { curSlide--; curStep = meta[curSlide].max; }
+        renderDeck();
+      }
+
+      function gotoSlide(s, st = 0) {
+        curSlide = Math.max(0, Math.min(slides.length - 1, s));
+        curStep = Math.max(0, Math.min(meta[curSlide].max, st));
+        renderDeck();
+      }
+
+      prevBtn.addEventListener('click', prev);
+      nextBtn.addEventListener('click', next);
+      dots.forEach((d) => d.addEventListener('click', () => gotoSlide(Number(d.dataset.go), 0)));
+
+      document.querySelectorAll('.axis-tile').forEach((tile) => {
+        tile.addEventListener('click', (e) => {
+          if (e.target.closest('[data-reset-s2]') || curSlide !== 1 || activeAxisFlip === tile.dataset.axis) return;
+          curStep = tile.dataset.axis === 'a' ? 1 : 3;
+          renderDeck();
+        });
+      });
+
+      document.querySelectorAll('[data-reset-s2]').forEach((b) => {
+        b.addEventListener('click', (e) => {
+          e.stopPropagation();
+          curStep = curStep === 1 ? 2 : 0;
+          renderDeck();
+        });
+      });
+
+      document.querySelectorAll('.pillar-card').forEach((card) => {
+        card.addEventListener('click', () => {
+          if (curSlide !== 4) return;
+          const b = Number(card.dataset.b);
+          curStep = curStep === b ? 0 : b;
+          renderDeck();
+        });
+      });
+
+      pipeNodes.forEach((node) => {
+        node.addEventListener('click', () => {
+          if (curSlide !== 5) return;
+          const st = Number(node.dataset.step);
+          curStep = curStep === st ? 0 : st;
+          renderDeck();
+        });
+      });
+
+      const overviewModal = document.getElementById('overviewModal');
+      const overviewGrid = document.getElementById('overviewGrid');
+      function toggleOverview(force) {
+        const open = typeof force === 'boolean' ? force : !overviewModal.classList.contains('is-open');
+        if (open) {
+          overviewGrid.innerHTML = '';
+          meta.forEach((m, i) => {
+            const btn = document.createElement('button');
+            btn.className = 'ov-tile' + (i === curSlide ? ' is-on' : '');
+            btn.innerHTML = `<span class="ov-num">SLIDE 0${i + 1}</span><span class="ov-title">${m.title}</span><span class="ov-sub">${m.sub}</span>`;
+            btn.addEventListener('click', () => { gotoSlide(i, 0); toggleOverview(false); });
+            overviewGrid.appendChild(btn);
+          });
+        }
+        overviewModal.classList.toggle('is-open', open);
+        overviewModal.setAttribute('aria-hidden', String(!open));
+      }
+      document.getElementById('closeOverviewBtn').addEventListener('click', () => toggleOverview(false));
+      overviewModal.addEventListener('click', (e) => { if (e.target === overviewModal) toggleOverview(false); });
+
+      const timerPill = document.getElementById('timerPill');
+      const timerText = document.getElementById('timerText');
+      let timerSec = 600, timerId = null;
+      const fmt = (s) => `${s < 0 ? '-' : ''}${String(Math.floor(Math.abs(s) / 60)).padStart(2, '0')}:${String(Math.abs(s) % 60).padStart(2, '0')}`;
+      function toggleTimer() {
+        const show = !timerPill.classList.contains('is-show');
+        timerPill.classList.toggle('is-show', show);
+        if (show && !timerId) {
+          timerId = setInterval(() => {
+            timerSec -= 1;
+            timerText.textContent = fmt(timerSec);
+            timerPill.classList.toggle('is-warn', timerSec <= 120 && timerSec > 0);
+            timerPill.classList.toggle('is-over', timerSec <= 0);
+          }, 1000);
+        }
+      }
+      timerPill.addEventListener('click', () => { timerSec = 600; timerText.textContent = '10:00'; timerPill.classList.remove('is-warn', 'is-over'); });
+
+      document.addEventListener('keydown', (e) => {
+        const tag = document.activeElement ? document.activeElement.tagName : '';
+        const inCtrl = tag === 'INPUT' || tag === 'SELECT';
+
+        if (e.key === 'Escape') {
+          if (overviewModal.classList.contains('is-open')) return toggleOverview(false);
+          if (curStep > 0) { curStep = 0; return renderDeck(); }
+          return toggleOverview(true);
+        }
+        if (overviewModal.classList.contains('is-open')) return;
+        if ((e.key === 'g' || e.key === 'G') && !inCtrl) { e.preventDefault(); return toggleOverview(); }
+        if ((e.key === 't' || e.key === 'T') && !inCtrl) { e.preventDefault(); return toggleTimer(); }
+        if ((e.key === 'f' || e.key === 'F') && !inCtrl) {
+          e.preventDefault();
+          if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
+          else document.exitFullscreen().catch(() => {});
+          return;
+        }
+        if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') {
+          if (inCtrl && e.key === 'ArrowRight') return;
+          e.preventDefault();
+          return next();
+        }
+        if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+          if (inCtrl && e.key === 'ArrowLeft') return;
+          e.preventDefault();
+          return prev();
+        }
+        if (/^[1-7]$/.test(e.key) && !inCtrl) gotoSlide(Number(e.key) - 1, 0);
+      });
+
+      /* LIVE 60FPS NORMAL CURVE LAB */
+      const muSlider = document.getElementById('muSlider');
+      const sigmaSlider = document.getElementById('sigmaSlider');
+      const bandSelect = document.getElementById('bandSelect');
+      const muVal = document.getElementById('muVal');
+      const sigmaVal = document.getElementById('sigmaVal');
+      const simAreaPill = document.getElementById('simAreaPill');
+      const canvas = document.getElementById('normalCanvas');
+      const ctx = canvas.getContext('2d');
+
+      const probMap = { 1: 'Área Central = 68,27%', 2: 'Área Central = 95,45%', 3: 'Área Central = 99,73%' };
+      const pdf = (x, mu, s) => Math.exp(-0.5 * ((x - mu) / s) ** 2) / (s * Math.sqrt(2 * Math.PI));
+
+      function drawNormal() {
+        const rect = canvas.parentElement.getBoundingClientRect();
+        if (rect.width < 10 || rect.height < 10) return;
+
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = Math.round(rect.width * dpr);
+        canvas.height = Math.round(rect.height * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        const W = rect.width, H = rect.height;
+        const mu = parseFloat(muSlider.value), s = parseFloat(sigmaSlider.value), k = parseInt(bandSelect.value, 10);
+        muVal.textContent = mu.toFixed(1);
+        sigmaVal.textContent = s.toFixed(1);
+        simAreaPill.textContent = probMap[k];
+
+        const pL = 44, pR = 18, pT = 24, pB = 28;
+        const pW = W - pL - pR, pH = H - pT - pB;
+        const xMin = -10, xMax = 10, yMax = 0.85;
+        const px = (x) => pL + ((x - xMin) / (xMax - xMin)) * pW;
+        const py = (y) => pT + (1 - y / yMax) * pH;
+
+        ctx.clearRect(0, 0, W, H);
+        ctx.fillStyle = '#F8FAFC';
+        ctx.fillRect(pL, pT, pW, pH);
+
+        ctx.strokeStyle = '#E2E8F0';
+        ctx.lineWidth = 1;
+        ctx.font = '600 11px "JetBrains Mono", monospace';
+        ctx.fillStyle = '#64748B';
+
+        ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+        [0, 0.2, 0.4, 0.6, 0.8].forEach((yv) => {
+          const y = py(yv);
+          ctx.beginPath(); ctx.moveTo(pL, y); ctx.lineTo(pL + pW, y); ctx.stroke();
+          ctx.fillText(yv.toFixed(1), pL - 7, y);
+        });
+
+        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        [-10, -5, 0, 5, 10].forEach((xv) => {
+          const x = px(xv);
+          ctx.beginPath(); ctx.moveTo(x, pT); ctx.lineTo(x, pT + pH); ctx.stroke();
+          ctx.fillText(String(xv), x, pT + pH + 6);
+        });
+
+        ctx.strokeStyle = '#CBD5E1';
+        ctx.strokeRect(pL, pT, pW, pH);
+
+        const a = Math.max(xMin, mu - k * s), b = Math.min(xMax, mu + k * s);
+        if (b > a) {
+          ctx.save();
+          ctx.beginPath(); ctx.rect(pL, pT, pW, pH); ctx.clip();
+          ctx.beginPath();
+          ctx.moveTo(px(a), py(0));
+          for (let i = 0; i <= 140; i++) {
+            const x = a + ((b - a) * i) / 140;
+            ctx.lineTo(px(x), py(pdf(x, mu, s)));
+          }
+          ctx.lineTo(px(b), py(0));
+          ctx.closePath();
+          ctx.fillStyle = 'rgba(16, 185, 129, 0.28)';
+          ctx.fill();
+          ctx.restore();
+        }
+
+        ctx.save();
+        ctx.beginPath(); ctx.rect(pL, pT, pW, pH); ctx.clip();
+        ctx.setLineDash([6, 5]);
+        ctx.strokeStyle = '#F59E0B';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(px(mu), py(0));
+        ctx.lineTo(px(mu), py(pdf(mu, mu, s)));
+        ctx.stroke();
+        ctx.restore();
+
+        ctx.save();
+        ctx.beginPath(); ctx.rect(pL, pT, pW, pH); ctx.clip();
+        ctx.beginPath();
+        for (let i = 0; i <= 240; i++) {
+          const x = xMin + ((xMax - xMin) * i) / 240;
+          const xPos = px(x), yPos = py(pdf(x, mu, s));
+          if (i === 0) ctx.moveTo(xPos, yPos); else ctx.lineTo(xPos, yPos);
+        }
+        ctx.strokeStyle = '#2563EB';
+        ctx.lineWidth = 3;
+        ctx.stroke();
+        ctx.restore();
+
+        [mu - s, mu + s].forEach((ix, idx) => {
+          if (ix >= xMin && ix <= xMax) {
+            const xPos = px(ix), yPos = py(pdf(ix, mu, s));
+            ctx.beginPath(); ctx.arc(xPos, yPos, 5, 0, Math.PI * 2);
+            ctx.fillStyle = '#10B981'; ctx.fill();
+            ctx.lineWidth = 2; ctx.strokeStyle = '#FFFFFF'; ctx.stroke();
+            ctx.font = '600 10.5px "JetBrains Mono", monospace';
+            ctx.fillStyle = '#047857';
+            ctx.textAlign = idx === 0 ? 'right' : 'left';
+            ctx.textBaseline = 'bottom';
+            ctx.fillText(idx === 0 ? 'μ−σ' : 'μ+σ', idx === 0 ? xPos - 8 : xPos + 8, yPos - 4);
+          }
+        });
+
+        if (mu >= xMin && mu <= xMax) {
+          ctx.font = '700 11px "JetBrains Mono", monospace';
+          ctx.fillStyle = '#B45309';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'bottom';
+          ctx.fillText(`μ=${mu.toFixed(1)}`, px(mu), pT - 5);
+        }
+      }
+
+      let raf = false;
+      const sched = () => { if (raf) return; raf = true; requestAnimationFrame(() => { raf = false; drawNormal(); }); };
+      muSlider.addEventListener('input', sched);
+      sigmaSlider.addEventListener('input', sched);
+      bandSelect.addEventListener('change', () => { sched(); bandSelect.blur(); });
+      muSlider.addEventListener('pointerup', () => muSlider.blur());
+      sigmaSlider.addEventListener('pointerup', () => sigmaSlider.blur());
+      window.addEventListener('resize', sched);
+      slides[6].addEventListener('transitionend', (e) => { if (e.propertyName === 'transform' && curSlide === 6) drawNormal(); });
+
+      renderDeck();
+      sched();
+    })();
+  </script>
+</body>
+</html>

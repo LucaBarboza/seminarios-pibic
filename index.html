@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Seminários PIBIC • UFBA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #F8FAFC;
+      --surface: #FFFFFF;
+      --border: #E2E8F0;
+      --ink: #0F172A;
+      --ink-2: #475569;
+      --blue: #2563EB;
+      --indigo: #4F46E5;
+      --grad-a: linear-gradient(135deg, #2563EB 0%, #4F46E5 55%, #7C3AED 100%);
+      --grad-b: linear-gradient(135deg, #1E3A8A 0%, #2563EB 55%, #38BDF8 100%);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(60% 50% at 10% 10%, rgba(37, 99, 235, 0.08), transparent 60%),
+        radial-gradient(50% 50% at 90% 90%, rgba(124, 58, 237, 0.08), transparent 60%),
+        var(--bg);
+      color: var(--ink);
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 24px;
+    }
+
+    .wrap {
+      width: 100%;
+      max-width: 960px;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    .top {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .top img {
+      height: 46px;
+      width: auto;
+      object-fit: contain;
+      mix-blend-mode: multiply;
+    }
+
+    .sep {
+      width: 1px;
+      height: 30px;
+      background: #CBD5E1;
+    }
+
+    .top-txt {
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #1E3A8A;
+      line-height: 1.4;
+    }
+
+    h1 {
+      font-size: clamp(1.8rem, 3.2vw, 2.6rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.12;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px;
+      box-shadow: 0 12px 30px -12px rgba(15, 23, 42, 0.08);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 22px;
+      transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(37, 99, 235, 0.45);
+      box-shadow: 0 20px 40px -16px rgba(37, 99, 235, 0.2);
+    }
+
+    .tag {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--indigo);
+    }
+
+    .card h2 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.25;
+      margin-top: 6px;
+    }
+
+    .author {
+      font-size: 0.9rem;
+      color: var(--ink-2);
+      margin-top: 8px;
+      font-weight: 500;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 18px;
+      border-radius: 12px;
+      color: #FFFFFF;
+      text-decoration: none;
+      font-size: 0.92rem;
+      font-weight: 700;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .btn:hover { opacity: 0.94; transform: translateY(-1px); }
+    .btn.a { background: var(--grad-a); }
+    .btn.b { background: var(--grad-b); }
+
+    @media (max-width: 720px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <div>
+      <div class="top">
+        <img src="Aulas/assets/logo-ufba.jpg" alt="UFBA" />
+        <img src="Aulas/assets/logo-pibic.png" alt="PIBIC UFBA" />
+        <div class="sep"></div>
+        <div class="top-txt">PIBIC &bull; UFBA<br />Apresentações de Seminário</div>
+      </div>
+      <h1 style="margin-top:18px;">Escolha a Apresentação</h1>
+    </div>
+
+    <div class="grid">
+      <article class="card">
+        <div>
+          <span class="tag">Apresentação 01 &bull; Revisão de Artigos</span>
+          <h2>Analisador Inteligente de Artigos Científicos</h2>
+          <p class="author">Luca Ferreira Barboza &bull; Orientador: Prof. Ricardo Rocha</p>
+        </div>
+        <a class="btn a" href="./Artigos/">Abrir Apresentação &rarr;</a>
+      </article>
+
+      <article class="card">
+        <div>
+          <span class="tag" style="color:var(--blue);">Apresentação 02 &bull; Plataforma de Aulas</span>
+          <h2>Plataforma de Ensino Universitário Inteligente</h2>
+          <p class="author">Danilo Cadena Lima &bull; Orientador: Prof. Ricardo Rocha</p>
+        </div>
+        <a class="btn b" href="./Aulas/">Abrir Apresentação &rarr;</a>
+      </article>
+    </div>
+  </main>
+</body>
+</html>
