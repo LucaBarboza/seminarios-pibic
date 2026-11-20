@@ -1029,9 +1029,9 @@
                 <div class="ctrl">
                   <div class="ctrl-top"><span>Intervalo</span></div>
                   <select id="bandSelect" class="sim-select" aria-label="Intervalo geométrico">
-                    <option value="1">Central: μ ± σ (68,27%)</option>
-                    <option value="2">2 Desvios: μ ± 2σ (95,45%)</option>
-                    <option value="3">3 Desvios: μ ± 3σ (99,73%)</option>
+                    <option value="center">Central: μ ± σ (68,27%)</option>
+                    <option value="left">À esquerda: x ≤ μ − σ (15,87%)</option>
+                    <option value="right">À direita: x ≥ μ + σ (15,87%)</option>
                   </select>
                 </div>
               </div>
@@ -1043,7 +1043,7 @@
               <div class="sim-legend">
                 <span class="leg"><span class="leg-line" style="background:#2563EB"></span> f(x)</span>
                 <span class="leg"><span class="leg-line" style="border-top:2.5px dashed #F59E0B; height:0"></span> Média (x = &mu;)</span>
-                <span class="leg"><span class="leg-area"></span> Área Central</span>
+                <span class="leg"><span class="leg-area"></span> Área Destacada</span>
                 <span class="leg"><span class="leg-dot"></span> Pontos de Inflexão (&mu; &plusmn; &sigma;)</span>
               </div>
             </article>
@@ -1411,7 +1411,11 @@
       const canvas = document.getElementById('normalCanvas');
       const ctx = canvas.getContext('2d');
 
-      const probMap = { 1: 'Área Central = 68,27%', 2: 'Área Central = 95,45%', 3: 'Área Central = 99,73%' };
+      const probMap = {
+        center: 'Área Central = 68,27%',
+        left: 'À Esquerda = 15,87%',
+        right: 'À Direita = 15,87%'
+      };
       const pdf = (x, mu, s) => Math.exp(-0.5 * ((x - mu) / s) ** 2) / (s * Math.sqrt(2 * Math.PI));
 
       function drawNormal() {
@@ -1424,10 +1428,10 @@
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
         const W = rect.width, H = rect.height;
-        const mu = parseFloat(muSlider.value), s = parseFloat(sigmaSlider.value), k = parseInt(bandSelect.value, 10);
+        const mu = parseFloat(muSlider.value), s = parseFloat(sigmaSlider.value), mode = bandSelect.value;
         muVal.textContent = mu.toFixed(1);
         sigmaVal.textContent = s.toFixed(1);
-        simAreaPill.textContent = probMap[k];
+        simAreaPill.textContent = probMap[mode] || probMap.center;
 
         const pL = 44, pR = 18, pT = 24, pB = 28;
         const pW = W - pL - pR, pH = H - pT - pB;
@@ -1461,7 +1465,17 @@
         ctx.strokeStyle = '#CBD5E1';
         ctx.strokeRect(pL, pT, pW, pH);
 
-        const a = Math.max(xMin, mu - k * s), b = Math.min(xMax, mu + k * s);
+        let a = xMin, b = xMax;
+        if (mode === 'center') {
+          a = Math.max(xMin, mu - s);
+          b = Math.min(xMax, mu + s);
+        } else if (mode === 'left') {
+          a = xMin;
+          b = Math.min(xMax, mu - s);
+        } else if (mode === 'right') {
+          a = Math.max(xMin, mu + s);
+          b = xMax;
+        }
         if (b > a) {
           ctx.save();
           ctx.beginPath(); ctx.rect(pL, pT, pW, pH); ctx.clip();
