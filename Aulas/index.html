@@ -408,7 +408,7 @@
     .sim-head h3 { font-size: clamp(0.98rem, 1.2vw, 1.14rem); font-weight: 800; color: var(--ink); }
     .metric-pill { padding: 6px 12px; border-radius: 999px; background: rgba(16, 185, 129, 0.11); border: 1px solid rgba(16, 185, 129, 0.3); color: #047857; font-size: 0.74rem; font-weight: 700; }
 
-    .sim-controls { display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 10px; padding: 9px 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; align-items: center; }
+    .sim-controls { display: grid; grid-template-columns: 0.85fr 0.85fr 1.45fr; gap: 10px; padding: 9px 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; align-items: center; }
     .ctrl { display: flex; flex-direction: column; gap: 4px; }
     .ctrl-top { display: flex; justify-content: space-between; font-size: 0.74rem; font-weight: 600; color: var(--ink-2); }
     .ctrl-val { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--blue); }
@@ -1029,9 +1029,9 @@
                 <div class="ctrl">
                   <div class="ctrl-top"><span>Intervalo</span></div>
                   <select id="bandSelect" class="sim-select" aria-label="Intervalo geométrico">
-                    <option value="1">Intervalo Central (μ ± σ — 68,27%)</option>
-                    <option value="2">Dois Desvios (μ ± 2σ — 95,45%)</option>
-                    <option value="3">Três Desvios (μ ± 3σ — 99,73%)</option>
+                    <option value="1">Central: μ ± σ (68,27%)</option>
+                    <option value="2">2 Desvios: μ ± 2σ (95,45%)</option>
+                    <option value="3">3 Desvios: μ ± 3σ (99,73%)</option>
                   </select>
                 </div>
               </div>
