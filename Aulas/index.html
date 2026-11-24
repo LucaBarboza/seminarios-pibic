@@ -454,7 +454,7 @@
 
     .sim-readouts {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: 1.4fr 1fr;
       gap: 10px;
     }
 
@@ -1424,12 +1424,8 @@
                   <strong id="simIC">[50,1 ; 55,9]</strong>
                 </div>
                 <div class="sim-metric">
-                  <span>Margem de Erro (E)</span>
-                  <strong id="simErr">&plusmn; 2,94</strong>
-                </div>
-                <div class="sim-metric">
-                  <span>Amplitude (2E)</span>
-                  <strong id="simAmp">5,88</strong>
+                  <span>Desvio-padrão (s)</span>
+                  <strong>s = 9</strong>
                 </div>
               </div>
 
@@ -2179,8 +2175,6 @@
       const valMean = document.getElementById('valMean');
       const valN = document.getElementById('valN');
       const simIC = document.getElementById('simIC');
-      const simErr = document.getElementById('simErr');
-      const simAmp = document.getElementById('simAmp');
       const simConfBadge = document.getElementById('simConfBadge');
       const simCurve = document.getElementById('simCurve');
       const simShade = document.getElementById('simShade');
@@ -2211,8 +2205,6 @@
         valMean.textContent = mean.toFixed(1).replace('.', ',');
         valN.textContent = String(n);
         simIC.textContent = `[${low.toFixed(1).replace('.', ',')} ; ${high.toFixed(1).replace('.', ',')}]`;
-        simErr.textContent = `± ${margin.toFixed(2).replace('.', ',')}`;
-        simAmp.textContent = `${(2 * margin).toFixed(2).replace('.', ',')}`;
         simConfBadge.textContent = `Confiança: ${confLevel}%`;
 
         /* Draw sampling curve & shaded IC */
