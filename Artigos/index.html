@@ -501,7 +501,7 @@
 
     .so1-pills {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(2, 1fr);
       gap: clamp(14px, 1.8vw, 22px);
     }
 
@@ -1245,28 +1245,11 @@
           </header>
 
           <div class="prop-layout">
-            <div class="prop-hero">
+            <div class="prop-hero" style="padding:clamp(48px,7vh,84px) clamp(36px,4.6vw,68px);gap:20px;">
               <span class="prop-hero-tag">Apoio à Triagem Científica</span>
-              <p class="prop-hero-title">
-                Um fichamento prévio rápido para auxiliar uma análise e leitura aprofundada do artigo.
+              <p class="prop-hero-title" style="font-size:clamp(2.2rem,3.4vw,3.4rem);">
+                Um fichamento prévio rápido para auxiliar na análise e na leitura aprofundada do artigo.
               </p>
-            </div>
-
-            <div class="prop-pillars">
-              <article class="card-top-bar prop-pillar">
-                <h3>Triagem em segundos</h3>
-                <p>Identifica a relevância do artigo antes de investir horas na leitura completa.</p>
-              </article>
-
-              <article class="card-top-bar prop-pillar">
-                <h3>Estrutura padronizada</h3>
-                <p>Organiza título, resumos, novidades, fundamentação e qualidade em blocos claros.</p>
-              </article>
-
-              <article class="card-top-bar prop-pillar">
-                <h3>Apoio ao pesquisador</h3>
-                <p>Acelera a seleção bibliográfica sem substituir a leitura crítica humana.</p>
-              </article>
             </div>
           </div>
         </div>
@@ -1277,7 +1260,6 @@
         <div class="inner">
           <header class="s-head">
             <h2 class="s-title">O que são <span class="grad-text">outputs estruturados</span>?</h2>
-            <p class="s-sub">Em vez de texto livre, o modelo responde em um formato definido por <strong>schema JSON</strong>.</p>
           </header>
 
           <div class="so1-wrap">
@@ -1333,12 +1315,7 @@
 
             <div class="so1-pills">
               <div class="so1-pill">Mais previsibilidade</div>
-              <div class="so1-pill">Menos parsing manual</div>
-              <div class="so1-pill">Pronto para sistemas e APIs</div>
-            </div>
-
-            <div class="info-bar">
-              <span>No Gemini, a resposta é guiada por <strong>JSON Schema</strong> via <strong>response_schema</strong>.</span>
+              <div class="so1-pill">Pronto para sistemas</div>
             </div>
           </div>
         </div>
@@ -1349,7 +1326,6 @@
         <div class="inner">
           <header class="s-head">
             <h2 class="s-title">Por que isso <span class="grad-text">importa</span>?</h2>
-            <p class="s-sub">Outputs estruturados transformam LLMs em componentes confiáveis de software.</p>
           </header>
 
           <div class="so1-wrap">
@@ -1370,7 +1346,6 @@
 
                 <ul class="so2-bullets">
                   <li>Formato imprevisível</li>
-                  <li>Interface quebra ao renderizar o fichamento</li>
                 </ul>
               </article>
 
@@ -1389,7 +1364,6 @@
                 </div>
 
                 <ul class="so2-bullets">
-                  <li>Consumo direto na plataforma</li>
                   <li>Automação mais segura</li>
                 </ul>
               </article>
@@ -1414,7 +1388,6 @@
         <div class="inner">
           <header class="s-head">
             <h2 class="s-title">Exemplo com <span class="grad-text">Pydantic (Python)</span></h2>
-            <p class="s-sub">Com Pydantic, o schema e a validação ficam naturais no fluxo Python.</p>
           </header>
 
           <div class="pyd-grid">
